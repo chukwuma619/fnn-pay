@@ -1,0 +1,14 @@
+# Use when FNN runs outside this Compose stack (e.g. bare metal or another host).
+# Start with:
+#   docker compose -f docker-compose.yml -f docker-compose.external-fnn.yml up -d
+services:
+  fnn:
+    profiles:
+      - embedded-fnn
+
+  server:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      FNN_RPC_URL: ${FNN_RPC_URL:?Set FNN_RPC_URL to your external FNN JSON-RPC endpoint}

@@ -1,0 +1,113 @@
+name: fnnpay
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fnnpay}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-fnnpay}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-fnnpay} -d ${POSTGRES_DB:-fnnpay}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - fnnpay
+
+  fnn:
+    image: ${FNN_IMAGE:-nervos/fiber:latest}
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      FIBER_SECRET_KEY_PASSWORD: ${FIBER_SECRET_KEY_PASSWORD:?Set FIBER_SECRET_KEY_PASSWORD in .env}
+      RUST_LOG: ${FNN_LOG_LEVEL:-info}
+      FIBER_CONFIG: /fiber/config.yml
+    volumes:
+      - ./fnn-data:/fiber
+      - ./fnn/config.yml:/fiber/config.yml:ro
+    ports:
+      - '${FNN_P2P_PORT:-8228}:8228'
+    healthcheck:
+      test: ['CMD', 'fnn-cli', 'info']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    networks:
+      - fnnpay
+
+  server:
+    build:
+      context: ../server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${SERVER_PORT:-3001}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-fnnpay}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-fnnpay}
+      FNN_RPC_URL: ${FNN_RPC_URL:-http://fnn:8227}
+      FNNPAY_SECRET_KEY: ${FNNPAY_SECRET_KEY:?Set FNNPAY_SECRET_KEY in .env}
+    ports:
+      - '${SERVER_PORT:-3001}:3001'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      fnn:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'bun',
+          '-e',
+          "const r = await fetch('http://127.0.0.1:3001/health'); process.exit(r.ok ? 0 : 1)",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - fnnpay
+
+  web:
+    build:
+      context: ../web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    profiles:
+      - web
+      - full
+    env_file:
+      - ../.env
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${WEB_PORT:-3000}
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
+    ports:
+      - '${WEB_PORT:-3000}:3000'
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - fnnpay
+
+volumes:
+  postgres-data:
+
+networks:
+  fnnpay:
+    driver: bridge

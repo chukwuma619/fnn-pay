@@ -1,0 +1,6 @@
+# Local FNN wallet and chain state — never commit
+fnn-data/
+ckb/key
+
+# Environment secrets
+.env

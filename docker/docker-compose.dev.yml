@@ -1,0 +1,28 @@
+# Dev overrides — use with:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile full up
+services:
+  server:
+    build:
+      target: dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ../server/src:/app/src:ro
+    develop:
+      watch:
+        - action: sync+restart
+          path: ../server/src
+          target: /app/src
+
+  fnn:
+    ports:
+      # Expose RPC on localhost only for fnn-cli / debugging from the host.
+      - '127.0.0.1:8227:8227'
+
+  web:
+    build:
+      target: dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ../web/src:/app/src:ro

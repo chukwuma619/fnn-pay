@@ -2,6 +2,16 @@
 
 Self-hosted, non-custodial payment processor for CKB, stablecoins, and RGB++ assets over Fiber.
 
+## Docker quick start
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full guide.
+
+```bash
+cp .env.example .env          # edit secrets
+./scripts/init-fnn-node.sh    # ensure FNN wallet key exists
+cd docker && docker compose up -d --build
+curl http://localhost:3001/health
+```
 
 ## Vision
 
