@@ -3,16 +3,13 @@ To install dependencies:
 bun install
 ```
 
-Set `DATABASE_URL` and auth env vars in your environment (see repo root `.env.example`). For local Docker Postgres:
+Copy and configure server env:
 
 ```sh
-export DATABASE_URL=postgresql://fnnpay:YOUR_PASSWORD@localhost:5432/fnnpay
-export BETTER_AUTH_SECRET=$(openssl rand -hex 32)
-export BETTER_AUTH_URL=http://localhost:3001
-export BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3000
+cp .env.example .env
 ```
 
-For Neon, use the pooled connection string from your Neon project dashboard.
+Set `DATABASE_URL`, `BETTER_AUTH_SECRET`, and other values in `server/.env`. Bun loads it automatically when you run from this directory.
 
 To run:
 ```sh
