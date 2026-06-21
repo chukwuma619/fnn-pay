@@ -2,17 +2,9 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { ExternalLink, Plus, Settings, Store } from 'lucide-react'
 import { useState } from 'react'
 
+import { CreateStoreSheetContent } from '#/components/dashboard/create-store-form'
 import { Button } from '#/components/ui/button'
-import { Input } from '#/components/ui/input'
-import { Label } from '#/components/ui/label'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '#/components/ui/sheet'
+import { Sheet, SheetContent } from '#/components/ui/sheet'
 import { Skeleton } from '#/components/ui/skeleton'
 import { useStores } from '#/lib/store-context'
 
@@ -24,32 +16,7 @@ function StoresPage() {
   const { stores, isLoading, error, createNewStore, setActiveStoreId } =
     useStores()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [name, setName] = useState('')
-  const [websiteUrl, setWebsiteUrl] = useState('')
-  const [formError, setFormError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  async function handleCreateStore(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setFormError(null)
-    setIsSubmitting(true)
-
-    const result = await createNewStore({
-      name,
-      websiteUrl: websiteUrl.trim() || undefined,
-    })
-
-    setIsSubmitting(false)
-
-    if (result.error) {
-      setFormError(result.error)
-      return
-    }
-
-    setName('')
-    setWebsiteUrl('')
-    setIsCreateOpen(false)
-  }
+  const hasStores = !isLoading && stores.length > 0
 
   return (
     <div className="flex flex-1 flex-col gap-4 py-4">
@@ -58,14 +25,16 @@ function StoresPage() {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Stores</h1>
             <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-              Manage merchant stores for invoices, payments, and webhooks. Each
-              store has its own settings and API keys, like BTCPay Server.
+              Create and manage merchant stores for invoices, payments, webhooks,
+              and API keys.
             </p>
           </div>
-          <Button onClick={() => setIsCreateOpen(true)}>
-            <Plus />
-            Create store
-          </Button>
+          {hasStores ? (
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <Plus />
+              Create store
+            </Button>
+          ) : null}
         </div>
       </section>
 
@@ -153,49 +122,15 @@ function StoresPage() {
 
       <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Create store</SheetTitle>
-            <SheetDescription>
-              Stores isolate invoices, webhooks, and API keys for each merchant
-              brand you operate.
-            </SheetDescription>
-          </SheetHeader>
-
-          <form className="mt-6 space-y-4" onSubmit={handleCreateStore}>
-            <div className="space-y-2">
-              <Label htmlFor="stores-page-name">Store name</Label>
-              <Input
-                id="stores-page-name"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                placeholder="My Coffee Shop"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="stores-page-website">Website (optional)</Label>
-              <Input
-                id="stores-page-website"
-                type="url"
-                value={websiteUrl}
-                onChange={(event) => setWebsiteUrl(event.target.value)}
-                placeholder="https://example.com"
-              />
-            </div>
-
-            {formError ? (
-              <p className="text-sm font-medium text-destructive">
-                {formError}
-              </p>
-            ) : null}
-
-            <SheetFooter>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating…' : 'Create store'}
-              </Button>
-            </SheetFooter>
-          </form>
+          <CreateStoreSheetContent
+            open={isCreateOpen}
+            formId="stores-page-create-store"
+            fieldIdPrefix="stores-page"
+            title="Create store"
+            description="Stores isolate invoices, webhooks, and API keys for each merchant brand you operate."
+            onSubmit={createNewStore}
+            onSuccess={() => setIsCreateOpen(false)}
+          />
         </SheetContent>
       </Sheet>
     </div>

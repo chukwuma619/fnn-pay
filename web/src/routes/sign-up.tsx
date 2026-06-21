@@ -1,10 +1,18 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useForm } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
 
 import { Button } from '#/components/ui/button'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '#/components/ui/field'
 import { Input } from '#/components/ui/input'
-import { Label } from '#/components/ui/label'
 import { authClient } from '#/lib/auth-client'
+import { getFieldErrors, isFieldInvalid } from '#/lib/forms/field-utils'
+import { signUpSchema } from '#/lib/forms/schemas'
 
 export const Route = createFileRoute('/sign-up')({
   component: SignUpPage,
@@ -13,38 +21,40 @@ export const Route = createFileRoute('/sign-up')({
 function SignUpPage() {
   const navigate = useNavigate()
   const session = authClient.useSession()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+    },
+    validators: {
+      onSubmit: signUpSchema,
+    },
+    onSubmit: async ({ value }) => {
+      setSubmitError(null)
+
+      const result = await authClient.signUp.email({
+        name: value.name,
+        email: value.email,
+        password: value.password,
+      })
+
+      if (result.error) {
+        setSubmitError(result.error.message ?? 'Unable to create account')
+        return
+      }
+
+      window.location.href = '/dashboard'
+    },
+  })
 
   useEffect(() => {
     if (!session.isPending && session.data) {
       void navigate({ to: '/dashboard' })
     }
   }, [session.data, session.isPending, navigate])
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError(null)
-    setIsSubmitting(true)
-
-    const result = await authClient.signUp.email({
-      name,
-      email,
-      password,
-    })
-
-    setIsSubmitting(false)
-
-    if (result.error) {
-      setError(result.error.message ?? 'Unable to create account')
-      return
-    }
-
-    window.location.href = '/dashboard'
-  }
 
   if (session.isPending || session.data) {
     return null
@@ -61,60 +71,116 @@ function SignUpPage() {
           Set up access to your FNNPay dashboard.
         </p>
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          <div>
-            <Label htmlFor="name" className="mb-2 block text-sm font-semibold">
-              Name
-            </Label>
-            <Input
-              id="name"
-              type="text"
-              autoComplete="name"
-              required
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
-          </div>
+        <form
+          id="sign-up-form"
+          className="space-y-5"
+          onSubmit={(event) => {
+            event.preventDefault()
+            void form.handleSubmit()
+          }}
+        >
+          <FieldGroup>
+            <form.Field
+              name="name"
+              children={(field) => {
+                const invalid = isFieldInvalid(field.state.meta)
 
-          <div>
-            <Label htmlFor="email" className="mb-2 block text-sm font-semibold">
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+                return (
+                  <Field data-invalid={invalid || undefined}>
+                    <FieldLabel htmlFor="sign-up-name">Name</FieldLabel>
+                    <Input
+                      id="sign-up-name"
+                      name={field.name}
+                      type="text"
+                      autoComplete="name"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                      aria-invalid={invalid}
+                    />
+                    {invalid ? (
+                      <FieldError
+                        errors={getFieldErrors(field.state.meta.errors)}
+                      />
+                    ) : null}
+                  </Field>
+                )
+              }}
             />
-          </div>
 
-          <div>
-            <Label
-              htmlFor="password"
-              className="mb-2 block text-sm font-semibold"
-            >
-              Password
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
+            <form.Field
+              name="email"
+              children={(field) => {
+                const invalid = isFieldInvalid(field.state.meta)
+
+                return (
+                  <Field data-invalid={invalid || undefined}>
+                    <FieldLabel htmlFor="sign-up-email">Email</FieldLabel>
+                    <Input
+                      id="sign-up-email"
+                      name={field.name}
+                      type="email"
+                      autoComplete="email"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                      aria-invalid={invalid}
+                    />
+                    {invalid ? (
+                      <FieldError
+                        errors={getFieldErrors(field.state.meta.errors)}
+                      />
+                    ) : null}
+                  </Field>
+                )
+              }}
             />
-          </div>
 
-          {error ? (
-            <p className="text-sm font-semibold text-red-600">{error}</p>
+            <form.Field
+              name="password"
+              children={(field) => {
+                const invalid = isFieldInvalid(field.state.meta)
+
+                return (
+                  <Field data-invalid={invalid || undefined}>
+                    <FieldLabel htmlFor="sign-up-password">Password</FieldLabel>
+                    <Input
+                      id="sign-up-password"
+                      name={field.name}
+                      type="password"
+                      autoComplete="new-password"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(event) => field.handleChange(event.target.value)}
+                      aria-invalid={invalid}
+                    />
+                    {invalid ? (
+                      <FieldError
+                        errors={getFieldErrors(field.state.meta.errors)}
+                      />
+                    ) : null}
+                  </Field>
+                )
+              }}
+            />
+          </FieldGroup>
+
+          {submitError ? (
+            <p className="text-sm font-semibold text-red-600">{submitError}</p>
           ) : null}
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating account…' : 'Create account'}
-          </Button>
+          <form.Subscribe selector={(state) => state.isSubmitting}>
+            {(isSubmitting) => (
+              <Button
+                type="submit"
+                form="sign-up-form"
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Creating account…' : 'Create account'}
+              </Button>
+            )}
+          </form.Subscribe>
         </form>
 
         <p className="mt-6 text-sm text-[var(--sea-ink-soft)]">

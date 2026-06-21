@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { Check, ChevronsUpDown, Plus, Store } from 'lucide-react'
 import { useState } from 'react'
 
-import { Button } from '#/components/ui/button'
+import { CreateStoreSheetContent } from '#/components/dashboard/create-store-form'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,16 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '#/components/ui/dropdown-menu'
-import { Input } from '#/components/ui/input'
-import { Label } from '#/components/ui/label'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '#/components/ui/sheet'
+import { Sheet, SheetContent } from '#/components/ui/sheet'
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -37,32 +28,6 @@ export function StoreSwitcher() {
     createNewStore,
   } = useStores()
   const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [name, setName] = useState('')
-  const [websiteUrl, setWebsiteUrl] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  async function handleCreateStore(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError(null)
-    setIsSubmitting(true)
-
-    const result = await createNewStore({
-      name,
-      websiteUrl: websiteUrl.trim() || undefined,
-    })
-
-    setIsSubmitting(false)
-
-    if (result.error) {
-      setError(result.error)
-      return
-    }
-
-    setName('')
-    setWebsiteUrl('')
-    setIsCreateOpen(false)
-  }
 
   return (
     <>
@@ -128,47 +93,15 @@ export function StoreSwitcher() {
 
       <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Create store</SheetTitle>
-            <SheetDescription>
-              Add a new merchant store, similar to BTCPay Server store
-              management.
-            </SheetDescription>
-          </SheetHeader>
-
-          <form className="mt-6 space-y-4" onSubmit={handleCreateStore}>
-            <div className="space-y-2">
-              <Label htmlFor="store-name">Store name</Label>
-              <Input
-                id="store-name"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                placeholder="My Coffee Shop"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="store-website">Website (optional)</Label>
-              <Input
-                id="store-website"
-                type="url"
-                value={websiteUrl}
-                onChange={(event) => setWebsiteUrl(event.target.value)}
-                placeholder="https://example.com"
-              />
-            </div>
-
-            {error ? (
-              <p className="text-sm font-medium text-destructive">{error}</p>
-            ) : null}
-
-            <SheetFooter>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating…' : 'Create store'}
-              </Button>
-            </SheetFooter>
-          </form>
+          <CreateStoreSheetContent
+            open={isCreateOpen}
+            formId="store-switcher-create-store"
+            fieldIdPrefix="store-switcher"
+            title="Create store"
+            description="Add a new merchant store, similar to BTCPay Server store management."
+            onSubmit={createNewStore}
+            onSuccess={() => setIsCreateOpen(false)}
+          />
         </SheetContent>
       </Sheet>
     </>
