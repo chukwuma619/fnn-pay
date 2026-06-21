@@ -4,6 +4,7 @@ import { Hono } from 'hono'
 
 import { auth } from './auth'
 import { db } from './db'
+import { storesRoutes } from './routes/stores'
 
 function getTrustedOrigins(): string[] {
   const configured = process.env.BETTER_AUTH_TRUSTED_ORIGINS
@@ -71,6 +72,8 @@ app.get('/api/me', (c) => {
   }
   return c.json({ user })
 })
+
+app.route('/api/stores', storesRoutes)
 
 const port = Number(process.env.PORT ?? 3001)
 

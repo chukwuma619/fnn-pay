@@ -5,8 +5,11 @@ import {
   FileText,
   LayoutDashboard,
   Settings,
+  Store,
   Webhook,
 } from 'lucide-react'
+
+import { StoreSwitcher } from '#/components/dashboard/store-switcher'
 
 import { Avatar, AvatarFallback } from '#/components/ui/avatar'
 import {
@@ -36,6 +39,11 @@ const navItems = [
     title: 'Overview',
     to: '/dashboard' as const,
     icon: LayoutDashboard,
+  },
+  {
+    title: 'Stores',
+    to: '/dashboard/stores' as const,
+    icon: Store,
   },
   {
     title: 'Invoices',
@@ -88,23 +96,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link to="/dashboard">
-                <span className="flex size-8 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#56c6be,#7ed3bf)] text-sm font-bold text-white">
-                  F
-                </span>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">FNNPay</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    Merchant dashboard
-                  </span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <StoreSwitcher />
       </SidebarHeader>
 
       <SidebarContent>

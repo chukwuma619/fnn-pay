@@ -19,8 +19,10 @@ import { Route as DashboardWebhooksRouteImport } from './routes/dashboard/webhoo
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
 import { Route as DashboardPaymentsRouteImport } from './routes/dashboard/payments'
 import { Route as DashboardInvoicesRouteImport } from './routes/dashboard/invoices'
+import { Route as DashboardStoresIndexRouteImport } from './routes/dashboard/stores/index'
 import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
 import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
+import { Route as DashboardStoresStoreIdRouteImport } from './routes/dashboard/stores/$storeId'
 
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
@@ -72,6 +74,11 @@ const DashboardInvoicesRoute = DashboardInvoicesRouteImport.update({
   path: '/invoices',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardStoresIndexRoute = DashboardStoresIndexRouteImport.update({
+  id: '/stores/',
+  path: '/stores/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
   id: '/demo/form/simple',
   path: '/demo/form/simple',
@@ -81,6 +88,11 @@ const DemoFormAddressRoute = DemoFormAddressRouteImport.update({
   id: '/demo/form/address',
   path: '/demo/form/address',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardStoresStoreIdRoute = DashboardStoresStoreIdRouteImport.update({
+  id: '/stores/$storeId',
+  path: '/stores/$storeId',
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -94,8 +106,10 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/stores/$storeId': typeof DashboardStoresStoreIdRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/dashboard/stores/': typeof DashboardStoresIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -107,8 +121,10 @@ export interface FileRoutesByTo {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/stores/$storeId': typeof DashboardStoresStoreIdRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/dashboard/stores': typeof DashboardStoresIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,8 +138,10 @@ export interface FileRoutesById {
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/dashboard/webhooks': typeof DashboardWebhooksRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/stores/$storeId': typeof DashboardStoresStoreIdRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/dashboard/stores/': typeof DashboardStoresIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -138,8 +156,10 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
+    | '/dashboard/stores/$storeId'
     | '/demo/form/address'
     | '/demo/form/simple'
+    | '/dashboard/stores/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -151,8 +171,10 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard'
+    | '/dashboard/stores/$storeId'
     | '/demo/form/address'
     | '/demo/form/simple'
+    | '/dashboard/stores'
   id:
     | '__root__'
     | '/'
@@ -165,8 +187,10 @@ export interface FileRouteTypes {
     | '/dashboard/settings'
     | '/dashboard/webhooks'
     | '/dashboard/'
+    | '/dashboard/stores/$storeId'
     | '/demo/form/address'
     | '/demo/form/simple'
+    | '/dashboard/stores/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -251,6 +275,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardInvoicesRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/stores/': {
+      id: '/dashboard/stores/'
+      path: '/stores'
+      fullPath: '/dashboard/stores/'
+      preLoaderRoute: typeof DashboardStoresIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/demo/form/simple': {
       id: '/demo/form/simple'
       path: '/demo/form/simple'
@@ -265,6 +296,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoFormAddressRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/stores/$storeId': {
+      id: '/dashboard/stores/$storeId'
+      path: '/stores/$storeId'
+      fullPath: '/dashboard/stores/$storeId'
+      preLoaderRoute: typeof DashboardStoresStoreIdRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
   }
 }
 
@@ -274,6 +312,8 @@ interface DashboardRouteRouteChildren {
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardWebhooksRoute: typeof DashboardWebhooksRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardStoresStoreIdRoute: typeof DashboardStoresStoreIdRoute
+  DashboardStoresIndexRoute: typeof DashboardStoresIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
@@ -282,6 +322,8 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardWebhooksRoute: DashboardWebhooksRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardStoresStoreIdRoute: DashboardStoresStoreIdRoute,
+  DashboardStoresIndexRoute: DashboardStoresIndexRoute,
 }
 
 const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(

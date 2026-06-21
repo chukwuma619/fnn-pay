@@ -8,6 +8,7 @@ import {
   SidebarProvider,
 } from '#/components/ui/sidebar'
 import { authClient } from '#/lib/auth-client'
+import { StoreProvider } from '#/lib/store-context'
 
 export const Route = createFileRoute('/dashboard')({
   component: DashboardLayout,
@@ -28,14 +29,16 @@ function DashboardLayout() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <DashboardHeader />
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <Outlet />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <StoreProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <DashboardHeader />
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            <Outlet />
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </StoreProvider>
   )
 }
