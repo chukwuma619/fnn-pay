@@ -520,7 +520,7 @@ function StoreSettingsPage() {
           <h2 className="text-lg font-semibold">API keys</h2>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
-          Create scoped keys for integrations, similar to BTCPay Server Greenfield
+          Create scoped keys for integrations
           API keys.
         </p>
 

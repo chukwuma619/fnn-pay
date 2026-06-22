@@ -98,7 +98,7 @@ export function StoreSwitcher() {
             formId="store-switcher-create-store"
             fieldIdPrefix="store-switcher"
             title="Create store"
-            description="Add a new merchant store, similar to BTCPay Server store management."
+            description="Add a new merchant store"
             onSubmit={createNewStore}
             onSuccess={() => setIsCreateOpen(false)}
           />
